@@ -72,6 +72,10 @@
 import { ref } from 'vue'
 import { supabase } from '../supabase'
 import BaseLayout from '../layouts/BaseLayout.vue'
+import { auth, provider, signInWithPopup } from '../firebase'
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
 
 const email = ref('')
 const password = ref('')
@@ -117,6 +121,16 @@ const register = async () => {
     error.value = 'An unexpected error occurred. Please try again.'
   } finally {
     loading.value = false
+  }
+}
+
+const signUpWithGoogle = async () => {
+  try {
+    const result = await signInWithPopup(auth, provider)
+    // User info: result.user
+    router.push('/')
+  } catch (error) {
+    alert('Google sign-up failed: ' + error.message)
   }
 }
 </script>
@@ -304,6 +318,25 @@ const register = async () => {
 .login-link a:hover {
   color: #a855f7;
   text-shadow: 0 0 10px rgba(56, 189, 248, 0.5);
+}
+
+.google-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fff;
+  color: #222;
+  border: 1px solid #e2e8f0;
+  border-radius: 25px;
+  padding: 10px 24px;
+  font-weight: 600;
+  font-size: 1rem;
+  margin-bottom: 1rem;
+  cursor: pointer;
+  transition: box-shadow 0.2s;
+}
+.google-btn:hover {
+  box-shadow: 0 0 10px #38bdf8;
 }
 
 /* Responsive Design */
