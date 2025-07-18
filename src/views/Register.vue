@@ -9,6 +9,11 @@
               <p>Join Dr. AI and start your pain diagnosis journey</p>
             </div>
             
+            <button class="google-btn" @click="signUpWithGoogle">
+              <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" style="width:20px; margin-right:8px;" />
+              Sign up with Google
+            </button>
+            
             <form @submit.prevent="register" class="register-form">
               <div class="form-group">
                 <label for="email">Email Address</label>
@@ -128,7 +133,7 @@ const signUpWithGoogle = async () => {
   try {
     const result = await signInWithPopup(auth, provider)
     // User info: result.user
-    router.push('/')
+    router.push('/dashboard')
   } catch (error) {
     alert('Google sign-up failed: ' + error.message)
   }

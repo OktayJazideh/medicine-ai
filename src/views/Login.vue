@@ -80,7 +80,7 @@ import { useRouter, useRoute } from 'vue-router'
 
 const router = useRouter()
 const route = useRoute()
-const redirectTo = route.query.redirect || '/'
+const redirectTo = route.query.redirect || '/dashboard'
 
 const email = ref('')
 const password = ref('')
