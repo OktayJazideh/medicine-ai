@@ -76,9 +76,11 @@ import { ref } from 'vue'
 import { supabase } from '../supabase'
 import BaseLayout from '../layouts/BaseLayout.vue'
 import { auth, provider, signInWithPopup } from '../firebase'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 
 const router = useRouter()
+const route = useRoute()
+const redirectTo = route.query.redirect || '/'
 
 const email = ref('')
 const password = ref('')
@@ -113,7 +115,7 @@ const loginWithGoogle = async () => {
   try {
     const result = await signInWithPopup(auth, provider)
     // User info: result.user
-    router.push('/')
+    router.push(redirectTo)
   } catch (error) {
     alert('Google login failed: ' + error.message)
   }
