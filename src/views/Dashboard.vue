@@ -6,11 +6,34 @@
         <p class="dashboard-welcome">Welcome to your Dr. AI dashboard! Here you can manage your account, view your diagnosis history, and more features coming soon.</p>
       </div>
     </div>
+    <MedicalProfileForm v-if="showMedicalForm" @completed="handleMedicalFormCompleted" />
   </BaseLayout>
 </template>
 
 <script setup>
+import { ref, onMounted } from 'vue'
 import BaseLayout from '../layouts/BaseLayout.vue'
+import MedicalProfileForm from '../components/MedicalProfileForm.vue'
+import { getFirestore, doc, getDoc } from 'firebase/firestore'
+import { auth } from '../firebase'
+
+const showMedicalForm = ref(false)
+const db = getFirestore()
+
+onMounted(async () => {
+  const user = auth.currentUser
+  if (user) {
+    const docRef = doc(db, 'medicalProfiles', user.uid)
+    const docSnap = await getDoc(docRef)
+    if (!docSnap.exists() || !docSnap.data().completed) {
+      showMedicalForm.value = true
+    }
+  }
+})
+
+const handleMedicalFormCompleted = () => {
+  showMedicalForm.value = false
+}
 </script>
 
 <style scoped>
