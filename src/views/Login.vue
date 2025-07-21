@@ -79,6 +79,7 @@ import { auth, provider, signInWithPopup } from '../firebase'
 import { useRouter, useRoute } from 'vue-router'
 import { useUserStore } from '../stores/user'
 import { watchEffect } from 'vue'
+import { getFirestore, doc, getDoc } from 'firebase/firestore'
 
 const router = useRouter()
 const route = useRoute()
@@ -97,6 +98,8 @@ watchEffect(() => {
   }
 })
 
+const db = getFirestore()
+
 const login = async () => {
   error.value = ''
   loading.value = true
@@ -110,8 +113,19 @@ const login = async () => {
     if (signInError) {
       error.value = signInError.message
     } else {
-      // Redirect to dashboard or home page
-      window.location.href = '/'
+      // Check medical profile
+      const user = auth.currentUser
+      if (user) {
+        const docRef = doc(db, 'medicalProfiles', user.uid)
+        const docSnap = await getDoc(docRef)
+        if (!docSnap.exists() || !docSnap.data().completed) {
+          router.push('/complete-profile')
+        } else {
+          router.push(redirectTo)
+        }
+      } else {
+        router.push(redirectTo)
+      }
     }
   } catch (err) {
     error.value = 'An unexpected error occurred. Please try again.'
@@ -123,8 +137,18 @@ const login = async () => {
 const loginWithGoogle = async () => {
   try {
     const result = await signInWithPopup(auth, provider)
-    // User info: result.user
-    router.push(redirectTo)
+    const user = result.user
+    if (user) {
+      const docRef = doc(db, 'medicalProfiles', user.uid)
+      const docSnap = await getDoc(docRef)
+      if (!docSnap.exists() || !docSnap.data().completed) {
+        router.push('/complete-profile')
+      } else {
+        router.push(redirectTo)
+      }
+    } else {
+      router.push(redirectTo)
+    }
   } catch (error) {
     alert('Google login failed: ' + error.message)
   }
