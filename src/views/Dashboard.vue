@@ -16,19 +16,29 @@ import BaseLayout from '../layouts/BaseLayout.vue'
 import MedicalProfileForm from '../components/MedicalProfileForm.vue'
 import { getFirestore, doc, getDoc } from 'firebase/firestore'
 import { auth } from '../firebase'
+import { onAuthStateChanged } from 'firebase/auth'
 
 const showMedicalForm = ref(false)
 const db = getFirestore()
 
-onMounted(async () => {
-  const user = auth.currentUser
+const checkMedicalProfile = async (user) => {
   if (user) {
     const docRef = doc(db, 'medicalProfiles', user.uid)
     const docSnap = await getDoc(docRef)
     if (!docSnap.exists() || !docSnap.data().completed) {
       showMedicalForm.value = true
+    } else {
+      showMedicalForm.value = false
     }
+  } else {
+    showMedicalForm.value = false
   }
+}
+
+onMounted(() => {
+  onAuthStateChanged(auth, (user) => {
+    checkMedicalProfile(user)
+  })
 })
 
 const handleMedicalFormCompleted = () => {
