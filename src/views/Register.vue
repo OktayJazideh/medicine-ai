@@ -79,6 +79,8 @@ import { supabase } from '../supabase'
 import BaseLayout from '../layouts/BaseLayout.vue'
 import { auth, provider, signInWithPopup } from '../firebase'
 import { useRouter } from 'vue-router'
+import { useUserStore } from '../stores/user'
+import { watchEffect } from 'vue'
 
 const router = useRouter()
 
@@ -88,6 +90,13 @@ const confirmPassword = ref('')
 const error = ref('')
 const success = ref('')
 const loading = ref(false)
+
+const userStore = useUserStore()
+watchEffect(() => {
+  if (userStore.user) {
+    router.push('/dashboard')
+  }
+})
 
 const register = async () => {
   // Reset messages
@@ -108,14 +117,14 @@ const register = async () => {
   loading.value = true
   
   try {
-    const { error: signupError } = await supabase.auth.signUp({
-      email: email.value,
-      password: password.value
-    })
+  const { error: signupError } = await supabase.auth.signUp({
+    email: email.value,
+    password: password.value
+  })
 
-    if (signupError) {
-      error.value = signupError.message
-    } else {
+  if (signupError) {
+    error.value = signupError.message
+  } else {
       success.value = "Account created successfully! Please check your email to verify your account."
       // Clear form
       email.value = ''

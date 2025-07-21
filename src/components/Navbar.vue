@@ -1,6 +1,11 @@
 <script setup>
 import { ref } from 'vue'
 import { smoothScrollWithOffset } from '../utils/smoothScroll.js'
+import { useUserStore } from '../stores/user'
+const userStore = useUserStore()
+import { signOut } from 'firebase/auth'
+import { auth } from '../firebase'
+const logout = () => signOut(auth)
 
 const isMenuOpen = ref(false)
 
@@ -30,7 +35,10 @@ const smoothScrollTo = (targetId) => {
         <a href="#features" class="nav-link font-medium" @click.prevent="smoothScrollTo('#features')">Features</a>
         <a href="#about" class="nav-link font-medium" @click.prevent="smoothScrollTo('#about')">About</a>
         <a href="#contact" class="nav-link font-medium" @click.prevent="smoothScrollTo('#contact')">Contact</a>
-        <router-link to="/register" class="nav-link register-btn font-semibold">Sign Up</router-link>
+        <router-link v-if="!userStore.user" to="/register" class="nav-link register-btn font-semibold">Sign Up</router-link>
+        <router-link v-if="!userStore.user" to="/login" class="nav-link font-semibold">Login</router-link>
+        <router-link v-if="userStore.user" to="/dashboard" class="nav-link font-semibold">Dashboard</router-link>
+        <button v-if="userStore.user" @click="logout" class="nav-link font-semibold" style="background:none;border:none;cursor:pointer;">Logout</button>
       </div>
       
       <div class="nav-toggle" @click="toggleMenu">

@@ -77,6 +77,8 @@ import { supabase } from '../supabase'
 import BaseLayout from '../layouts/BaseLayout.vue'
 import { auth, provider, signInWithPopup } from '../firebase'
 import { useRouter, useRoute } from 'vue-router'
+import { useUserStore } from '../stores/user'
+import { watchEffect } from 'vue'
 
 const router = useRouter()
 const route = useRoute()
@@ -87,6 +89,13 @@ const password = ref('')
 const rememberMe = ref(false)
 const error = ref('')
 const loading = ref(false)
+
+const userStore = useUserStore()
+watchEffect(() => {
+  if (userStore.user) {
+    router.push('/dashboard')
+  }
+})
 
 const login = async () => {
   error.value = ''
