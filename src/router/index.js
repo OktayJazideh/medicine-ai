@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import LandingPage from '../views/LandingPage.vue'
+import { auth } from '../firebase'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -26,8 +27,21 @@ const router = createRouter({
       path: '/dashboard',
       name: 'dashboard',
       component: () => import('../views/Dashboard.vue'),
+      meta: { requiresAuth: true }
     },
   ],
+})
+
+// Navigation Guard
+router.beforeEach((to, from, next) => {
+  const requiresAuth = to.matched.some(record => record.meta.requiresAuth)
+  const user = auth.currentUser
+
+  if (requiresAuth && !user) {
+    next({ path: '/login', query: { redirect: to.fullPath } })
+  } else {
+    next()
+  }
 })
 
 export default router
