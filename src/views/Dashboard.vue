@@ -6,7 +6,7 @@
         <p class="dashboard-welcome">Welcome to your Dr. AI dashboard! Here you can manage your account, view your diagnosis history, and more features coming soon.</p>
       </div>
     </div>
-    <MedicalProfileForm v-if="showMedicalForm" @completed="handleMedicalFormCompleted" />
+    <MedicalProfileForm v-if="!loadingProfile && showMedicalForm" @completed="handleMedicalFormCompleted" />
   </BaseLayout>
 </template>
 
@@ -20,6 +20,7 @@ import { onAuthStateChanged } from 'firebase/auth'
 
 const showMedicalForm = ref(false)
 const db = getFirestore()
+const loadingProfile = ref(true)
 
 const checkMedicalProfile = async (user) => {
   if (user) {
@@ -33,9 +34,11 @@ const checkMedicalProfile = async (user) => {
   } else {
     showMedicalForm.value = false
   }
+  loadingProfile.value = false
 }
 
 onMounted(() => {
+  loadingProfile.value = true
   onAuthStateChanged(auth, (user) => {
     checkMedicalProfile(user)
   })
