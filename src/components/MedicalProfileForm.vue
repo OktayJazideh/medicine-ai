@@ -1,31 +1,29 @@
 <template>
-  <div class="modal-overlay">
-    <div class="modal-content">
-      <h2>Complete Your Medical Profile</h2>
-      <p class="info-msg">
-        Completing this form is optional, but it will help Dr. AI provide more accurate diagnoses for you.
-      </p>
-      <form @submit.prevent="submitForm">
-        <input v-model="form.name" placeholder="Full Name (Optional)" />
-        <select v-model="form.gender">
-          <option value="">Gender (Optional)</option>
-          <option value="male">Male</option>
-          <option value="female">Female</option>
-          <option value="other">Other</option>
-        </select>
-        <input v-model="form.age" type="number" min="0" placeholder="Age (Optional)" />
-        <input v-model="form.city" placeholder="City/Location (Optional)" />
-        <input v-model="form.height" type="number" min="0" placeholder="Height (cm) (Optional)" />
-        <input v-model="form.weight" type="number" min="0" placeholder="Weight (kg) (Optional)" />
-        <input v-model="form.currentInjury" placeholder="Current Injury (Optional)" />
-        <input v-model="form.pastInjury" placeholder="Past Injuries (Optional)" />
-        <input v-model="form.currentDiseases" placeholder="Current Diseases (Optional)" />
-        <input v-model="form.pastDiseases" placeholder="Past Diseases (Optional)" />
-        <textarea v-model="form.other" placeholder="Other medical info (Optional)"></textarea>
-        <button type="submit" :disabled="loading">Save & Continue</button>
-        <div v-if="error" class="error-message">{{ error }}</div>
-      </form>
-    </div>
+  <div class="medical-profile-form">
+    <h2>Complete Your Medical Profile</h2>
+    <p class="info-msg">
+      Completing this form is optional, but it will help Dr. AI provide more accurate diagnoses for you.
+    </p>
+    <form @submit.prevent="submitForm">
+      <input v-model="form.name" placeholder="Full Name (Optional)" />
+      <select v-model="form.gender">
+        <option value="">Gender (Optional)</option>
+        <option value="male">Male</option>
+        <option value="female">Female</option>
+        <option value="other">Other</option>
+      </select>
+      <input v-model="form.age" type="number" min="0" placeholder="Age (Optional)" />
+      <input v-model="form.city" placeholder="City/Location (Optional)" />
+      <input v-model="form.height" type="number" min="0" placeholder="Height (cm) (Optional)" />
+      <input v-model="form.weight" type="number" min="0" placeholder="Weight (kg) (Optional)" />
+      <input v-model="form.currentInjury" placeholder="Current Injury (Optional)" />
+      <input v-model="form.pastInjury" placeholder="Past Injuries (Optional)" />
+      <input v-model="form.currentDiseases" placeholder="Current Diseases (Optional)" />
+      <input v-model="form.pastDiseases" placeholder="Past Diseases (Optional)" />
+      <textarea v-model="form.other" placeholder="Other medical info (Optional)"></textarea>
+      <button type="submit" :disabled="loading">Save & Continue</button>
+      <div v-if="error" class="error-message">{{ error }}</div>
+    </form>
   </div>
 </template>
 
@@ -33,9 +31,9 @@
 import { ref } from 'vue'
 import { getFirestore, doc, setDoc } from 'firebase/firestore'
 import { auth } from '../firebase'
+import { useRouter } from 'vue-router'
 
-const emit = defineEmits(['completed'])
-const db = getFirestore()
+const router = useRouter()
 const form = ref({
   name: '',
   gender: '',
@@ -62,12 +60,12 @@ const submitForm = async () => {
       loading.value = false
       return
     }
-    await setDoc(doc(db, 'medicalProfiles', user.uid), {
+    await setDoc(doc(getFirestore(), 'medicalProfiles', user.uid), {
       ...form.value,
       completed: true,
       updatedAt: new Date()
     })
-    emit('completed')
+    router.push('/dashboard')
   } catch (e) {
     error.value = 'Failed to save. Please try again.'
   } finally {
@@ -77,21 +75,15 @@ const submitForm = async () => {
 </script>
 
 <style scoped>
-.modal-overlay {
-  position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background: rgba(10, 10, 10, 0.85);
-  z-index: 2000;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.modal-overlay, .modal-content {
+  all: unset;
 }
-.modal-content {
+.medical-profile-form {
+  max-width: 400px;
+  margin: 60px auto;
   background: #1e293b;
   border-radius: 20px;
   padding: 2.5rem 2rem;
-  max-width: 400px;
-  width: 100%;
   box-shadow: 0 10px 40px rgba(56, 189, 248, 0.15);
   display: flex;
   flex-direction: column;

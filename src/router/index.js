@@ -29,6 +29,12 @@ const router = createRouter({
       component: () => import('../views/Dashboard.vue'),
       meta: { requiresAuth: true }
     },
+    {
+      path: '/complete-profile',
+      name: 'complete-profile',
+      component: () => import('../components/MedicalProfileForm.vue'),
+      meta: { requiresAuth: true }
+    },
   ],
 })
 

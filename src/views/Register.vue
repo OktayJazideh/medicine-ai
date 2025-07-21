@@ -81,6 +81,7 @@ import { auth, provider, signInWithPopup } from '../firebase'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '../stores/user'
 import { watchEffect } from 'vue'
+import { getFirestore, doc, getDoc } from 'firebase/firestore'
 
 const router = useRouter()
 
@@ -97,6 +98,8 @@ watchEffect(() => {
     router.push('/dashboard')
   }
 })
+
+const db = getFirestore()
 
 const register = async () => {
   // Reset messages
@@ -126,6 +129,19 @@ const register = async () => {
     error.value = signupError.message
   } else {
       success.value = "Account created successfully! Please check your email to verify your account."
+      // Check medical profile
+      const user = auth.currentUser
+      if (user) {
+        const docRef = doc(db, 'medicalProfiles', user.uid)
+        const docSnap = await getDoc(docRef)
+        if (!docSnap.exists() || !docSnap.data().completed) {
+          router.push('/complete-profile')
+        } else {
+          router.push('/dashboard')
+        }
+      } else {
+        router.push('/dashboard')
+      }
       // Clear form
       email.value = ''
       password.value = ''
@@ -141,8 +157,18 @@ const register = async () => {
 const signUpWithGoogle = async () => {
   try {
     const result = await signInWithPopup(auth, provider)
-    // User info: result.user
-    router.push('/dashboard')
+    const user = result.user
+    if (user) {
+      const docRef = doc(db, 'medicalProfiles', user.uid)
+      const docSnap = await getDoc(docRef)
+      if (!docSnap.exists() || !docSnap.data().completed) {
+        router.push('/complete-profile')
+      } else {
+        router.push('/dashboard')
+      }
+    } else {
+      router.push('/dashboard')
+    }
   } catch (error) {
     alert('Google sign-up failed: ' + error.message)
   }
